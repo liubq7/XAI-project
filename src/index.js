@@ -1,13 +1,39 @@
 import '@marcellejs/core/dist/marcelle.css';
-import { dashboard, text } from '@marcellejs/core';
+import * as marcelle from '@marcellejs/core';
 
-const x = text({ text: 'Welcome to Marcelle!' });
+const imgUpload = marcelle.imageUpload();
+const sketchpad = marcelle.sketchpad();
+const webcam = marcelle.webcam();
 
-const dash = dashboard({
-  title: 'My Marcelle App!',
-  author: 'Marcelle Doe',
+const select = marcelle.select({
+  options: [
+    'cat',
+    'dog'
+  ]
 });
 
-dash.page('Welcome').use(x);
+const slider = marcelle.slider();
 
-dash.start();
+// Requires a stream of predictions
+// conf = marcelle.classificationPlot();
+
+const origConfidence = marcelle.chart({
+  preset: 'bar',
+});
+
+const attackConfidence = marcelle.chart({
+  preset: 'bar',
+});
+
+// Dashboard Interface
+const myDashboard = marcelle.dashboard({
+  title: 'Adversarial attacks',
+  author: 'Group E',
+});
+
+myDashboard
+  .page('Adversarial attacks')
+  .useLeft(imgUpload, origConfidence)
+  .use([sketchpad, select], slider, attackConfidence);
+
+myDashboard.start();

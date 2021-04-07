@@ -1,6 +1,7 @@
-**/.DS_Store
 node_modules
-public/bundle.*
+.DS_Store
+dist
+*.local
 backend/data
 backend/uploads
 python/marcelle-logs
