@@ -1,5 +1,9 @@
 import '@marcellejs/core/dist/marcelle.css';
 import * as marcelle from '@marcellejs/core';
+import { adversary } from './modules';
+
+const fileUpload = marcelle.fileUpload();
+fileUpload.title = 'Upload model files (.json and .bin)';
 
 const imgUpload = marcelle.imageUpload();
 const sketchpad = marcelle.sketchpad();
@@ -14,6 +18,8 @@ const select = marcelle.select({
 
 const slider = marcelle.slider();
 
+const adversarialAttack = adversary({ someParam: 'Yes', other: 33 });
+
 // Requires a stream of predictions
 // conf = marcelle.classificationPlot();
 
@@ -27,13 +33,13 @@ const attackConfidence = marcelle.chart({
 
 // Dashboard Interface
 const myDashboard = marcelle.dashboard({
-  title: 'Adversarial attacks',
+  title: 'XAI',
   author: 'Group E',
 });
 
 myDashboard
   .page('Adversarial attacks')
-  .useLeft(imgUpload, origConfidence)
-  .use([sketchpad, select], slider, attackConfidence);
+  .useLeft(fileUpload)
+  .use([imgUpload, adversarialAttack], [select, slider], [origConfidence, attackConfidence]);
 
 myDashboard.start();
