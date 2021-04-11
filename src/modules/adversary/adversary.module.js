@@ -1,13 +1,39 @@
-import { Module } from '@marcellejs/core';
+import { Module, Stream } from '@marcellejs/core';
 import * as marcelle from '@marcellejs/core';
 import Component from './adversary.svelte';
+
+
+const adverClass = marcelle.select({
+  options: [
+    'cat',
+    'dog'
+  ]
+});
+adverClass.title = "Turn this image into a:";
+
+const noiseSlider = marcelle.slider();
+noiseSlider.title = "Noise";
+
+const viewNoise = marcelle.button({ text: 'View Noise' });
 
 export class Adversary extends Module {
   constructor(options) {
     super();
     this.title = 'Adversarial Image';
-    this.options = options;
-    this.mySlider = marcelle.slider();
+    // this.options = options;
+    this.$img = options;
+    this.$test = Stream.periodic(1000).map(() => Math.random());
+
+    this.adverClass = adverClass;
+    this.noiseSlider = noiseSlider;
+    this.viewNoise = viewNoise;
+
+    console.log(this.$img);
+  }
+
+  update(u) {
+    this.$img = u;
+    console.log(this.$img);
   }
 
   mount(target) {
@@ -18,11 +44,17 @@ export class Adversary extends Module {
       target: t,
       props: {
         title: this.title,
-        options: this.options,
-        mySlider: this.mySlider,
+        img: this.$img,
+        test: this.$test,
+        // options: this.options,
+        // adverClass: this.adverClass,
+        // noiseSlider: this.noiseSlider,
+        // viewNoise: this.viewNoise,
       },
     });
-    console.log(this.mySlider);
-    this.mySlider.mount(t);
+
+    this.adverClass.mount(t);
+    this.noiseSlider.mount(t);
+    this.viewNoise.mount(t);
   }
 }

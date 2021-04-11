@@ -9,16 +9,11 @@ const imgUpload = marcelle.imageUpload();
 const sketchpad = marcelle.sketchpad();
 const webcam = marcelle.webcam();
 
-const select = marcelle.select({
-  options: [
-    'cat',
-    'dog'
-  ]
+let adversarialAttack = adversary(sketchpad.$images);
+sketchpad.$images.subscribe((img) => {
+  console.log(img);
+  adversarialAttack.update(sketchpad.$thumbnails.value);
 });
-
-const slider = marcelle.slider();
-
-const adversarialAttack = adversary({ someParam: 'Yes', other: 33 });
 
 // Requires a stream of predictions
 // conf = marcelle.classificationPlot();
@@ -39,7 +34,7 @@ const myDashboard = marcelle.dashboard({
 
 myDashboard
   .page('Adversarial attacks')
-  .useLeft(fileUpload)
-  .use([imgUpload, adversarialAttack], [select, slider], [origConfidence, attackConfidence]);
+  .useLeft(fileUpload, sketchpad)
+  .use([imgUpload, adversarialAttack], [origConfidence, attackConfidence]);
 
 myDashboard.start();
