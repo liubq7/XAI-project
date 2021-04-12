@@ -3,24 +3,26 @@
 
   export let title;
   // export let options;
-  export let img;
-  export let test;
 
 </script>
 
 <style>
-  /* .my-color {
-    color: seagreen;
-  } */
+
+  #sketchImage {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    width: 250px;
+    height: 250px;
+  }
+
 </style>
 
 <svelte:options accessors />
 
 <ModuleBase {title}>
-  <div>{$img}</div>
-  <div>{$test}</div>
 
-  {#if img}<img id='sketchImage' alt="sketchImage" src={$img} />{/if}
+  <img id='sketchImage' />
 
   <!-- <div>This is a <span class="my-color">custom</span> module with the following options:</div>
   <p>{JSON.stringify(options)}</p> -->

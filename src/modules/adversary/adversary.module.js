@@ -21,8 +21,7 @@ export class Adversary extends Module {
     super();
     this.title = 'Adversarial Image';
     // this.options = options;
-    this.$img = options;
-    this.$test = Stream.periodic(1000).map(() => Math.random());
+    // this.$img = options;
 
     this.adverClass = adverClass;
     this.noiseSlider = noiseSlider;
@@ -31,8 +30,9 @@ export class Adversary extends Module {
     console.log(this.$img);
   }
 
-  update(u) {
-    this.$img = u;
+  update(image) {
+    this.$img = image;
+    document.getElementById("sketchImage").src = image;
     console.log(this.$img);
   }
 
@@ -44,8 +44,7 @@ export class Adversary extends Module {
       target: t,
       props: {
         title: this.title,
-        img: this.$img,
-        test: this.$test,
+        // img: this.$img,
         // options: this.options,
         // adverClass: this.adverClass,
         // noiseSlider: this.noiseSlider,

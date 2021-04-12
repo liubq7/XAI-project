@@ -9,7 +9,7 @@ const imgUpload = marcelle.imageUpload();
 const sketchpad = marcelle.sketchpad();
 const webcam = marcelle.webcam();
 
-let adversarialAttack = adversary(sketchpad.$images);
+let adversarialAttack = adversary();
 sketchpad.$images.subscribe((img) => {
   console.log(img);
   adversarialAttack.update(sketchpad.$thumbnails.value);
