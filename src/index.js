@@ -1,6 +1,6 @@
 import '@marcellejs/core/dist/marcelle.css';
 import * as marcelle from '@marcellejs/core';
-import { adversary } from './modules';
+import { adversary, origin } from './modules';
 
 const fileUpload = marcelle.fileUpload();
 fileUpload.title = 'Upload model files (.json and .bin)';
@@ -9,10 +9,16 @@ const imgUpload = marcelle.imageUpload();
 const sketchpad = marcelle.sketchpad();
 const webcam = marcelle.webcam();
 
-let adversarialAttack = adversary();
-sketchpad.$images.subscribe((img) => {
-  console.log(img);
-  adversarialAttack.update(sketchpad.$thumbnails.value);
+const adversarialAttack = adversary();
+sketchpad.$thumbnails.subscribe((thumbnail) => {
+  console.log(thumbnail);
+  adversarialAttack.update(thumbnail);
+});
+
+const originImage = origin(imgUpload);
+imgUpload.$thumbnails.subscribe((thumbnail) => {
+  console.log(thumbnail);
+  originImage.update(thumbnail);
 });
 
 // Requires a stream of predictions
@@ -33,8 +39,8 @@ const myDashboard = marcelle.dashboard({
 });
 
 myDashboard
-  .page('Adversarial attacks')
+  .page('Adversarial Attacks')
   .useLeft(fileUpload, sketchpad)
-  .use([imgUpload, adversarialAttack], [origConfidence, attackConfidence]);
+  .use([originImage, adversarialAttack], [origConfidence, attackConfidence]);
 
 myDashboard.start();

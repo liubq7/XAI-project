@@ -27,13 +27,12 @@ export class Adversary extends Module {
     this.noiseSlider = noiseSlider;
     this.viewNoise = viewNoise;
 
-    console.log(this.$img);
   }
 
   update(image) {
-    this.$img = image;
+    // this.$img = image;
     document.getElementById("sketchImage").src = image;
-    console.log(this.$img);
+    // console.log(this.$img);
   }
 
   mount(target) {
