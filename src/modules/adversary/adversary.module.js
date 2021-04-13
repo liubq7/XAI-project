@@ -4,15 +4,12 @@ import Component from './adversary.svelte';
 
 
 const adverClass = marcelle.select({
-  options: [
-    'cat',
-    'dog'
-  ]
+  options: []
 });
 adverClass.title = "Turn this image into a:";
 
-const noiseSlider = marcelle.slider();
-noiseSlider.title = "Noise";
+const increaseConfButton = marcelle.button({ text: "Increase confidence" });
+increaseConfButton.title = "Confidence control";
 
 const viewNoise = marcelle.button({ text: 'View Noise' });
 
@@ -24,7 +21,7 @@ export class Adversary extends Module {
     // this.$img = options;
 
     this.adverClass = adverClass;
-    this.noiseSlider = noiseSlider;
+    this.increaseConfButton = increaseConfButton;
     this.viewNoise = viewNoise;
 
   }
@@ -52,7 +49,7 @@ export class Adversary extends Module {
     });
 
     this.adverClass.mount(t);
-    this.noiseSlider.mount(t);
+    this.increaseConfButton.mount(t);
     this.viewNoise.mount(t);
   }
 }
