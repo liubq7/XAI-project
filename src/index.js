@@ -1,5 +1,4 @@
 import '@marcellejs/core/dist/marcelle.css';
-import * as tf from '@tensorflow/tfjs-core';
 import * as marcelle from '@marcellejs/core';
 import { adversary, origin, mobilenetAttacker, mobilenet } from './modules';
 
@@ -10,7 +9,31 @@ const imgToUri = (img) => {
   canvas.height = img.height;
   ctx.putImageData(img, 0, 0);
   return canvas.toDataURL();
+};
+
+const white2transparent = (img) => {
+  for (let p = 0; p < img.data.length; p += 4) {
+    if (img.data[p] == 255 && img.data[p + 1] == 255 && img.data[p + 2] == 255) {
+      img.data[p + 3] = 0;
+    }
+  }
 }
+
+const overlayImgs = async (top, bottom) => {
+  white2transparent(top);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = bottom.width;
+  canvas.height = bottom.height;
+  const topBitmap = await createImageBitmap(top, 0, 0, top.width, top.height, {
+    resizeWidth: bottom.width,
+    resizeHeight: bottom.height,
+    resizeQuality: 'high',
+  });
+  ctx.putImageData(bottom, 0, 0);
+  ctx.drawImage(topBitmap, 0, 0);
+  return ctx.getImageData(0, 0, bottom.width, bottom.height);
+};
 
 // Dashboard Interface
 const myDashboard = marcelle.dashboard({
@@ -94,10 +117,6 @@ const imgUpload = marcelle.imageUpload();
 const sketchpad = marcelle.sketchpad();
 
 const adversarialAttack = adversary();
-sketchpad.$thumbnails.subscribe((thumbnail) => {
-  console.log(thumbnail);
-  adversarialAttack.update(thumbnail);
-});
 
 trainingSet.$labels.subscribe(labels => adversarialAttack.adverClass.$options.set(labels));
 
@@ -126,14 +145,26 @@ const advImages = adversarialAttack.adverClass.$value
   .combine((x, y) => {
     return classifier.attack.bind(classifier)(x, y, true);
   }, capturedImages)
-  .merge(adversarialAttack.increaseConfButton.$click
+  .merge(adversarialAttack.moreNoise.$click
     .map(() => (classifier.attack.bind(classifier)(
       capturedImages.value,
       adversarialAttack.adverClass.$value.value,
     )))
   )
+  .merge(adversarialAttack.lessNoise.$click
+    .map(() => (classifier.undo.bind(classifier)(capturedImages.value)))
+  )
   .awaitPromises()
-  .tap((img) => {
+  .combine(overlayImgs, sketchpad.$images)
+  .awaitPromises();
+
+adversarialAttack.viewNoise.$checked
+  .combine(
+    async (img, checked) => (checked ? classifier.visNoise.bind(classifier)() : img),
+    advImages
+  )
+  .awaitPromises()
+  .subscribe((img) => {
     adversarialAttack.update(imgToUri(img));
   });
 
@@ -145,7 +176,7 @@ const attackConfidence = marcelle.classificationPlot(advPredictions);
 
 myDashboard
   .page('Adversarial Attacks')
-  .useLeft(input, advCaptureButton, sketchpad)
+  .useLeft(input, advCaptureButton, trainButton, prog, sketchpad)
   .use([originImage, adversarialAttack], [origConfidence, attackConfidence]);
 
 myDashboard.start();

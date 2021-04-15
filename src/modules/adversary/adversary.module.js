@@ -8,10 +8,13 @@ const adverClass = marcelle.select({
 });
 adverClass.title = "Turn this image into a:";
 
-const increaseConfButton = marcelle.button({ text: "Increase confidence" });
-increaseConfButton.title = "Confidence control";
+const moreNoise = marcelle.button({ text: "More noise" });
+moreNoise.title = "Confidence control";
 
-const viewNoise = marcelle.button({ text: 'View Noise' });
+const lessNoise = marcelle.button({ text: "Less noise" });
+lessNoise.title = "Confidence control";
+
+const viewNoise = marcelle.toggle({ text: "View image / noise" });
 
 export class Adversary extends Module {
   constructor(options) {
@@ -21,9 +24,9 @@ export class Adversary extends Module {
     // this.$img = options;
 
     this.adverClass = adverClass;
-    this.increaseConfButton = increaseConfButton;
+    this.moreNoise = moreNoise;
+    this.lessNoise = lessNoise;
     this.viewNoise = viewNoise;
-
   }
 
   update(image) {
@@ -49,7 +52,8 @@ export class Adversary extends Module {
     });
 
     this.adverClass.mount(t);
-    this.increaseConfButton.mount(t);
+    this.moreNoise.mount(t);
+    this.lessNoise.mount(t);
     this.viewNoise.mount(t);
   }
 }

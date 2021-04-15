@@ -15,11 +15,23 @@ export class MobilenetAttacker extends Module {
     return this.classifier.predict(features);
   }
 
+  async tensorToImg(x) {
+    const clipped = tf.clipByValue(x, 0, 255).cast('int32');
+    const xArray = await tf.browser.toPixels(clipped);
+    return new ImageData(xArray, x.shape[0], x.shape[1]);
+  }
+
+  async visNoise() {
+    const enhanced = tf.mul(this.noises[this.noises.length - 1], tf.scalar(10.0));
+    const centered = tf.add(enhanced, tf.scalar(127.0));
+    return this.tensorToImg(centered);
+  }
+
   async attack(img, label, resetNoise = false) {
     const labelIdx = this.classifier.labels.indexOf(label);
     const imgTensor = tf.browser.fromPixels(img);
     if (resetNoise) {
-      this.noise = tf.zerosLike(imgTensor);
+      this.noises = [tf.zerosLike(imgTensor)];
     }
 
     const getLabelProb = (x) => {
@@ -28,16 +40,22 @@ export class MobilenetAttacker extends Module {
       return preds.gather(labelIdx)
     }
 
+    const noise = this.noises[this.noises.length - 1];
     const addNoise = tf.tidy(() => {
-      const noisyImg = tf.add(imgTensor, this.noise);
+      const noisyImg = tf.add(imgTensor, noise);
       const gradF = tf.grad(getLabelProb);
       const grad = gradF(noisyImg)
       return tf.div(grad, grad.abs().max());
     });
-    this.noise = tf.add(this.noise, addNoise);
+    this.noises.push(tf.add(noise, addNoise));
+    return this.tensorToImg(tf.add(imgTensor, this.noises[this.noises.length - 1]));
+  }
 
-    const advImg = tf.clipByValue(tf.add(this.noise, imgTensor), 0, 255).cast('int32');
-    const advImgArray = await tf.browser.toPixels(advImg);
-    return new ImageData(advImgArray, img.width, img.height);
+  async undo(img) {
+    const imgTensor = tf.browser.fromPixels(img);
+    if (this.noises.length > 1) {
+      this.noises.pop();
+    }
+    return this.tensorToImg(tf.add(imgTensor, this.noises[this.noises.length - 1]));
   }
 }
