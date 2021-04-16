@@ -45,8 +45,13 @@ const input = marcelle.webcam();
 const label = marcelle.textfield();
 label.name = 'Instance label';
 
+const advLabel = marcelle.textfield();
+advLabel.name = 'Correct label';
+
 const capture = marcelle.button({ text: 'Click to record instances' });
 capture.name = 'Capture instances to the training set';
+
+const advCapture = marcelle.button({ text: 'Add adversarial to dataset' });
 
 const featureExtractor = mobilenet();
 const mlp = marcelle.mlp({ layers: [32, 32], epochs: 5 });
@@ -70,7 +75,6 @@ const instances = capture.$click
 
 const store = marcelle.dataStore({ location: 'localStorage' });
 const trainingSet = marcelle.dataset({ name: 'TrainingSet', dataStore: store });
-trainingSet.capture(instances);
 
 const trainingSetBrowser = marcelle.datasetBrowser(trainingSet);
 
@@ -172,11 +176,29 @@ const advPredictions = advImages
   .map(async (img) => (classifier.predict(img)))
   .awaitPromises();
 
+origPredictions.subscribe((pred) => {
+  advLabel.$text.set(pred.label);
+});
+
 const attackConfidence = marcelle.classificationPlot(advPredictions);
 
 myDashboard
   .page('Adversarial Attacks')
   .useLeft(input, sketchpad)
-  .use([trainButton, prog], [originImage, adversarialAttack], [origConfidence, attackConfidence]);
+  .use([trainButton, prog, advLabel, advCapture], [originImage, adversarialAttack], [origConfidence, attackConfidence]);
+
+const advInstances = advCapture.$click
+  .sample(advImages)
+  .map(async (img) => ({
+    type: "image",
+    data: img,
+    label: advLabel.$text.value,
+    thumbnail: input.$thumbnails.value,
+    features: await featureExtractor.process(img)
+  }))
+  .awaitPromises();
+
+const allInstances = instances.merge(advInstances);
+trainingSet.capture(allInstances);
 
 myDashboard.start();
