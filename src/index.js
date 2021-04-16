@@ -2,7 +2,7 @@ import '@marcellejs/core/dist/marcelle.css';
 import * as marcelle from '@marcellejs/core';
 import { adversary, origin, mobilenetAttacker, mobilenet } from './modules';
 
-const imgToUri = (img) => {
+const imgToURL = (img) => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   canvas.width = img.width;
@@ -88,8 +88,8 @@ trainButton.$click.subscribe(() => mlp.train(trainingSet));
 
 myDashboard
   .page('Training')
-  .useLeft(trainingSetBrowser)
-  .use(params, trainButton, prog, plotTraining);
+  .useLeft(trainButton)
+  .use(params, prog, plotTraining);
 
 const tog = marcelle.toggle({ text: "toggle prediction" });
 tog.$checked.subscribe(checked => {
@@ -113,7 +113,7 @@ myDashboard
   .useLeft(input)
   .use(tog, plotResults);
 
-const imgUpload = marcelle.imageUpload();
+
 const sketchpad = marcelle.sketchpad();
 
 const adversarialAttack = adversary();
@@ -130,7 +130,7 @@ const capturedImages = advCaptureButton.$click
   .filter(() => mlp.ready)
   .sample(input.$images)
   .tap((img) => {
-    originImage.update(imgToUri(img));
+    originImage.update(imgToURL(img));
   });
 
 const origPredictions = capturedImages
@@ -138,7 +138,7 @@ const origPredictions = capturedImages
   .map(async (img) => (classifier.predict(img)))
   .awaitPromises();
 
-const originImage = origin(imgUpload);
+const originImage = origin(advCaptureButton);
 const origConfidence = marcelle.classificationPlot(origPredictions);
 
 const advImages = adversarialAttack.adverClass.$value
@@ -165,7 +165,7 @@ adversarialAttack.viewNoise.$checked
   )
   .awaitPromises()
   .subscribe((img) => {
-    adversarialAttack.update(imgToUri(img));
+    adversarialAttack.update(imgToURL(img));
   });
 
 const advPredictions = advImages
@@ -176,7 +176,7 @@ const attackConfidence = marcelle.classificationPlot(advPredictions);
 
 myDashboard
   .page('Adversarial Attacks')
-  .useLeft(input, advCaptureButton, trainButton, prog, sketchpad)
-  .use([originImage, adversarialAttack], [origConfidence, attackConfidence]);
+  .useLeft(input, sketchpad)
+  .use([trainButton, prog], [originImage, adversarialAttack], [origConfidence, attackConfidence]);
 
 myDashboard.start();

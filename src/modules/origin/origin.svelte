@@ -2,7 +2,7 @@
   import { ModuleBase } from '@marcellejs/core';
 
   export let title;
-  export let options;
+  // export let options;
 </script>
 
 <style>
@@ -13,9 +13,6 @@
     display: inline-block;
   }
 
-  #upload {
-    display: inline-block;
-  }
 </style>
 
 <svelte:options accessors />
@@ -23,11 +20,8 @@
 <ModuleBase {title}>
 
   <!-- svelte-ignore a11y-missing-attribute -->
-  <div>
-    <img id='uploadImage' />
-    <div id='upload'>{options}</div>
-  </div>
-  
+
+  <img id='uploadImage' />
 
   <!-- <div>This is a <span class="my-color">custom</span> module with the following options:</div>
   <p>{JSON.stringify(options)}</p> -->
