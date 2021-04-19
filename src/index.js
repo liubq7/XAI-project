@@ -122,7 +122,10 @@ const sketchpad = marcelle.sketchpad();
 
 const adversarialAttack = adversary();
 
-trainingSet.$labels.subscribe(labels => adversarialAttack.adverClass.$options.set(labels));
+trainingSet.$labels.subscribe(labels => {
+  adversarialAttack.adverClass.$options.set(labels);
+  adversarialAttack.adverClass.$value.set(labels[0]);
+});
 
 const advCaptureButton = marcelle.button({ text: 'Take photo' });
 const capturedImages = advCaptureButton.$click
@@ -202,3 +205,7 @@ const allInstances = instances.merge(advInstances);
 trainingSet.capture(allInstances);
 
 myDashboard.start();
+
+setTimeout(() => {
+  sketchpad.capture();
+}, 500);
